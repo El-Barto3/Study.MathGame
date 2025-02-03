@@ -1,19 +1,61 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
 
-string x;
-void startGame()
+int selectedOption = 0;
+int maxValueOfNumber = 100;
+string[] optionsNames = ["ADDITION", "SUBSTRACTION", "MULTIPLICATION", "DIVISION"];
+char[] opperands = ['+', '-', '*', '/'];
+
+
+void startBasicGame(int selectedOperationOption)
 {
+    Console.Clear();
+    Console.WriteLine("Calculate this equation:");
 
+    var randomVar = new Random();
+    int correctAnswer = 0;
+    int firstNumber = randomVar.Next(maxValueOfNumber);
+    int secondNumber = randomVar.Next(maxValueOfNumber);
+
+    switch (selectedOperationOption)
+    {
+        case 0:
+            correctAnswer = firstNumber + secondNumber;
+            break;
+        case 1:
+            correctAnswer = firstNumber - secondNumber;
+            break;
+        case 2:
+            correctAnswer = firstNumber * secondNumber;
+            break;
+        case 3:
+            correctAnswer = firstNumber / secondNumber;
+            break;
+
+    }
+
+    Console.Write($"{firstNumber} {opperands[selectedOperationOption]} {secondNumber} = ");
+    var userAnswer = Console.ReadLine();
+
+    if (userAnswer != null && userAnswer.Equals(correctAnswer.ToString()))
+    {
+        Console.WriteLine("Good job!");
+    }
+    else
+    {
+        Console.WriteLine("Wrong answer!");
+    }
+
+}
+
+void showMenuForArythmeticModes()
+{
     ConsoleKey clickedKey;
-    int selectedOption = 0;
-    string[] optionsNames = ["ADDITION", "SUBSTRACTION", "MULTIPLICATION", "DIVISION"];
-
     do
     {
         Console.Clear();
         Console.WriteLine("Choose your game (UP/DOWN ARROWS): ");
-        
-        for(int i = 0;i<optionsNames.Length;i++)
+
+        for (int i = 0; i < optionsNames.Length; i++)
         {
             if (selectedOption == i)
                 Console.Write("--> ");
@@ -44,4 +86,14 @@ void startGame()
 
 }
 
-startGame();
+
+//menu for choosing mode of game
+void main()
+{
+
+    showMenuForArythmeticModes();
+    startBasicGame(selectedOption);
+
+}
+
+main();
