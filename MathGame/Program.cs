@@ -2,24 +2,29 @@
 
 using System.Net.Sockets;
 
-int maxValueOfNumber = 100;
+int[] maxValueOfNumber = {10,30,100};
 string[] optionsNames = ["ADDITION", "SUBSTRACTION", "MULTIPLICATION", "DIVISION"];
 string[] mainMenuStrings = ["STANDARD MODE", "RANDOMIZER", "CHOOSE DIFFICULTY", "GAMES HISTORY"];
+string[] difficultiesLevel = ["EASY", "NORMAL", "HARD"];
 char[] opperands = ['+', '-', '*', '/'];
 var randomVar = new Random();
+int gameLength = 3;
+int difficultyLevel = 0;
 
 void handleReadKey()
 {
 
 }
-void startBasicGame(int selectedGame)
+
+int startBasicGame(int selectedGame, int currentRound, int maxRounds)
 {
     Console.Clear();
-    Console.WriteLine("Calculate this equation:");
+    Console.WriteLine($"Calculate this equation ({currentRound}/{maxRounds}):");
 
     int correctAnswer = 0;
-    int firstNumber = randomVar.Next(maxValueOfNumber);
-    int secondNumber = randomVar.Next(maxValueOfNumber);
+    //need to fix making numbers
+    int firstNumber = randomVar.Next(maxValueOfNumber[difficultyLevel]);
+    int secondNumber = randomVar.Next(maxValueOfNumber[difficultyLevel]);
 
     switch (selectedGame)
     {
@@ -40,24 +45,29 @@ void startBasicGame(int selectedGame)
 
     Console.Write($"{firstNumber} {opperands[selectedGame]} {secondNumber} = ");
     var userAnswer = Console.ReadLine();
+    var points = 0;
 
     if (userAnswer != null && userAnswer.Equals(correctAnswer.ToString()))
     {
         Console.WriteLine("Good job!");
+        points = 1;
     }
     else
     {
         Console.WriteLine("Wrong answer!");
+        points = 0;
     }
-    Console.WriteLine("Press any key to exit");
+
+    Console.WriteLine("Press any key to " + (currentRound == maxRounds ? "exit" : "continue"));
     Console.ReadKey();
+
+    return points;
 
 }
 
-int showMenu(string[] namesTable, string menuHeader)
+int showMenu(string[] namesTable, string menuHeader, int selectedOption = 0)
 {
     ConsoleKey clickedKey;
-    int selectedOption = 0;
     do
     {
         Console.Clear();
@@ -118,13 +128,22 @@ void main()
         if(outcome == 0)
         {
             var mode = showMenu(optionsNames, "Choose your game (UP/DOWN ARROWS):");
-            if (mode != -1)
-                startBasicGame(mode);
+            if (mode == -1)
+                break;
+            
+            for (int i = 0; i < gameLength; i++)
+                startBasicGame(mode, (i + 1), gameLength);
         }
         //randomizer
         if (outcome == 1)
         {
-            startBasicGame(randomVar.Next() % 4);
+            for(int i = 0;i<gameLength;i++)
+                startBasicGame((randomVar.Next() % optionsNames.Length), (i + 1), gameLength);
+        }
+        //randomizer
+        if (outcome == 2)
+        {
+            difficultyLevel = showMenu(difficultiesLevel, "Choose difficulty", difficultyLevel);
         }
     } while (outcome != -1);
 }
