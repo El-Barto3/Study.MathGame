@@ -1,17 +1,43 @@
 ﻿
 
+using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Net.Sockets;
 
 int[] maxValueOfNumber = { 10, 30, 100 };
 int[] minValueOfNumber = { 1, 10, 30 };
 string[] standardGames = ["ADDITION", "SUBSTRACTION", "MULTIPLICATION", "DIVISION"];
-string[] mainMenuStrings = ["STANDARD MODE", "RANDOMIZER", "CHOOSE DIFFICULTY", "GAMES HISTORY"];
+string[] mainMenuStrings = ["STANDARD", "RANDOMIZER", "CHOOSE DIFFICULTY", "GAMES HISTORY"];
 string[] difficultiesLevel = ["EASY", "NORMAL", "HARD"];
 char[] opperands = ['+', '-', '*', '/'];
 var randomVar = new Random();
 int gameLength = 3;
 int difficultyLevel = 0;
 string[] gamesHistory = new string[10];
+
+int enterWholeGame(int option)
+{
+    var pointsSum = 0;
+    var mode = 0;
+    if (option == 0)
+    {
+        mode = showMenu(standardGames, "Choose your game:");
+        if (mode == -1)
+            return -1;
+;
+    }
+
+    for (int i = 0; i < gameLength; i++)
+    {
+        if (option == 0)
+            pointsSum += startBasicGame(mode, (i + 1), gameLength);
+        
+        else if (option == 1)
+            pointsSum += startBasicGame((randomVar.Next() % standardGames.Length), (i + 1), gameLength);
+    }
+    
+    return pointsSum;
+}
 
 int findLastNonEmpty(string[] array)
 {
@@ -131,34 +157,13 @@ void main()
         //show main menu
         outcome = showMenu(mainMenuStrings, "Navigate with arrows and use ESC to go back");
 
-        //standard mode
-        if(outcome == 0)
+        //randomizer and standard game and saving to history handler
+        if (outcome == 0 || outcome == 1)
         {
-            var mode = showMenu(standardGames, "Choose your game (UP/DOWN ARROWS):");
-            if (mode == -1)
-                continue;
-            
-            for (int i = 0; i < gameLength; i++)
-                startBasicGame(mode, (i + 1), gameLength);
-        }        
-        
-        //randomizer mode
-        if (outcome == 0)
-        {
-            var mode = showMenu(standardGames, "Choose your game (UP/DOWN ARROWS):");
-            if (mode == -1)
-                continue;
+            var playerPoints = enterWholeGame(outcome);
 
-            for (int i = 0; i < gameLength; i++)
-                startBasicGame(mode, (i + 1), gameLength);
-        }
-
-        //randomizer and standard
-        if (outcome == 1 || outcome == 0)
-        {
-            var pointsSum = 0;
-            for(int i = 0;i<gameLength;i++)
-                pointsSum += startBasicGame((randomVar.Next() % standardGames.Length), (i + 1), gameLength);
+            if (playerPoints == -1)
+                continue;
 
             var indexOfEmpty = Array.IndexOf(gamesHistory, null);
             if (indexOfEmpty == -1)
@@ -166,8 +171,10 @@ void main()
                 indexOfEmpty = gamesHistory.Length;
                 Array.Resize(ref gamesHistory, (gamesHistory.Length + 10));
             }
+           // var addTab = (outcome == 0) ? "\t" : "";
+           // gamesHistory[indexOfEmpty] = $"{indexOfEmpty + 1}\t{difficultiesLevel[difficultyLevel]}\t{mainMenuStrings[outcome]}\t{playerPoints} / {gameLength}";
+            gamesHistory[indexOfEmpty] = (indexOfEmpty + 1).ToString().PadRight(8) + (difficultiesLevel[difficultyLevel]).PadRight(16) + mainMenuStrings[outcome].PadRight(16) + playerPoints + '/' + gameLength;
 
-            gamesHistory[indexOfEmpty] = $"No. {indexOfEmpty+1}\tDifficulty: {difficultiesLevel[difficultyLevel]}\tMode: {mainMenuStrings[1]}\tScore: {pointsSum} / {gameLength}";
         }
 
         //difficulty level
@@ -181,7 +188,9 @@ void main()
         if (outcome == 3)
         {
             var lastValid = findLastNonEmpty(gamesHistory);
-            showMenu(gamesHistory[0..(lastValid + 1)], "Games history", -1); //dont show choosing arrow and null elements when loaded
+            var historyMenuTitle = "Games history\n" + "No.".PadRight(8) + "Difficulty".PadRight(16) + "Mode".PadRight(16) + "Score";
+
+            showMenu(gamesHistory[0..(lastValid + 1)], historyMenuTitle, -1); //dont show choosing arrow and null elements when loaded
         }
     } while (outcome != -1);
 }
