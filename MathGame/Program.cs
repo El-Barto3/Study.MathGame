@@ -6,15 +6,28 @@ using System.Net.Sockets;
 
 int[] maxValueOfNumber = { 10, 30, 100 };
 int[] minValueOfNumber = { 1, 10, 30 };
+int[] minValueOfNumberForDivide = { 2, 2, 3 };
 string[] standardGames = ["ADDITION", "SUBSTRACTION", "MULTIPLICATION", "DIVISION"];
 string[] mainMenuStrings = ["STANDARD", "RANDOMIZER", "CHOOSE DIFFICULTY", "GAMES HISTORY"];
 string[] difficultiesLevel = ["EASY", "NORMAL", "HARD"];
 char[] opperands = ['+', '-', '*', '/'];
 var randomVar = new Random();
-int gameLength = 3;
+int gameLength = 5;
 int difficultyLevel = 0;
 string[] gamesHistory = new string[10];
 
+void dividingHandler(ref int firstNumber,ref int secondNumber)
+{
+    //can be prime, 0 or smaller than divider
+    while (isPrime(firstNumber))
+        firstNumber = randomVar.Next(minValueOfNumber[difficultyLevel], maxValueOfNumber[difficultyLevel]);
+
+    //find divider that will give int outcome
+    while (firstNumber % secondNumber != 0 || firstNumber == secondNumber || secondNumber == 1)
+    {
+        secondNumber = randomVar.Next(minValueOfNumberForDivide[difficultyLevel], firstNumber - 1);
+    }
+}
 int enterWholeGame(int option)
 {
     var pointsSum = 0;
@@ -31,11 +44,11 @@ int enterWholeGame(int option)
     {
         if (option == 0)
             pointsSum += startBasicGame(mode, (i + 1), gameLength);
-        
         else if (option == 1)
             pointsSum += startBasicGame((randomVar.Next() % standardGames.Length), (i + 1), gameLength);
+
     }
-    
+
     return pointsSum;
 }
 
@@ -51,6 +64,20 @@ int findLastNonEmpty(string[] array)
         }
     }
     return lastIndex;
+}
+bool isPrime(int number)
+{
+    if(number <= 2)
+        return true;
+
+    var limit = Math.Ceiling(Math.Sqrt(number));
+    for (int i = 2;i <= limit; i++)
+    {
+        if (number % i == 0)
+            return false;
+    }
+
+    return true;
 }
 
 int startBasicGame(int selectedGame, int currentRound, int maxRounds)
@@ -75,6 +102,7 @@ int startBasicGame(int selectedGame, int currentRound, int maxRounds)
             correctAnswer = firstNumber * secondNumber;
             break;
         case 3:
+            dividingHandler(ref firstNumber, ref secondNumber);
             correctAnswer = firstNumber / secondNumber;
             break;
 
@@ -171,10 +199,8 @@ void main()
                 indexOfEmpty = gamesHistory.Length;
                 Array.Resize(ref gamesHistory, (gamesHistory.Length + 10));
             }
-           // var addTab = (outcome == 0) ? "\t" : "";
-           // gamesHistory[indexOfEmpty] = $"{indexOfEmpty + 1}\t{difficultiesLevel[difficultyLevel]}\t{mainMenuStrings[outcome]}\t{playerPoints} / {gameLength}";
-            gamesHistory[indexOfEmpty] = (indexOfEmpty + 1).ToString().PadRight(8) + (difficultiesLevel[difficultyLevel]).PadRight(16) + mainMenuStrings[outcome].PadRight(16) + playerPoints + '/' + gameLength;
 
+            gamesHistory[indexOfEmpty] = (indexOfEmpty + 1).ToString().PadRight(8) + (difficultiesLevel[difficultyLevel]).PadRight(16) + mainMenuStrings[outcome].PadRight(16) + playerPoints + '/' + gameLength;
         }
 
         //difficulty level
@@ -182,6 +208,7 @@ void main()
         {
             var newDifficulty = showMenu(difficultiesLevel, "Choose difficulty", difficultyLevel);
             difficultyLevel = newDifficulty != -1 ? newDifficulty : difficultyLevel;
+
         }   
         
         //games history panel
@@ -196,4 +223,3 @@ void main()
 }
 
 main();
-Console.WriteLine("test");
