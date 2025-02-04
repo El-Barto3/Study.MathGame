@@ -187,3 +187,4 @@ void main()
 }
 
 main();
+Console.WriteLine("test");
