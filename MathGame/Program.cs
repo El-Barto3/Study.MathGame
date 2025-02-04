@@ -171,8 +171,9 @@ void main()
                 indexOfEmpty = gamesHistory.Length;
                 Array.Resize(ref gamesHistory, (gamesHistory.Length + 10));
             }
-            var addTab = (outcome == 0) ? "\t" : "";
-            gamesHistory[indexOfEmpty] = $"No. {indexOfEmpty + 1}\tDifficulty: {difficultiesLevel[difficultyLevel]}\tMode: {mainMenuStrings[outcome]}\t{addTab}Score: {playerPoints} / {gameLength}";
+           // var addTab = (outcome == 0) ? "\t" : "";
+           // gamesHistory[indexOfEmpty] = $"{indexOfEmpty + 1}\t{difficultiesLevel[difficultyLevel]}\t{mainMenuStrings[outcome]}\t{playerPoints} / {gameLength}";
+            gamesHistory[indexOfEmpty] = (indexOfEmpty + 1).ToString().PadRight(8) + (difficultiesLevel[difficultyLevel]).PadRight(16) + mainMenuStrings[outcome].PadRight(16) + playerPoints + '/' + gameLength;
 
         }
 
@@ -187,7 +188,9 @@ void main()
         if (outcome == 3)
         {
             var lastValid = findLastNonEmpty(gamesHistory);
-            showMenu(gamesHistory[0..(lastValid + 1)], "Games history", -1); //dont show choosing arrow and null elements when loaded
+            var historyMenuTitle = "Games history\n" + "No.".PadRight(8) + "Difficulty".PadRight(16) + "Mode".PadRight(16) + "Score";
+
+            showMenu(gamesHistory[0..(lastValid + 1)], historyMenuTitle, -1); //dont show choosing arrow and null elements when loaded
         }
     } while (outcome != -1);
 }
