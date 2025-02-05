@@ -2,6 +2,7 @@
 
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Net.Sockets;
 
 int[] maxValueOfNumber = { 10, 30, 100 };
@@ -15,6 +16,8 @@ var randomVar = new Random();
 int gameLength = 5;
 int difficultyLevel = 0;
 string[] gamesHistory = new string[10];
+Stopwatch gameTimer = new Stopwatch();
+
 
 void dividingHandler(ref int firstNumber,ref int secondNumber)
 {
@@ -24,9 +27,7 @@ void dividingHandler(ref int firstNumber,ref int secondNumber)
 
     //find divider that will give int outcome
     while (firstNumber % secondNumber != 0 || firstNumber == secondNumber || secondNumber == 1)
-    {
         secondNumber = randomVar.Next(minValueOfNumberForDivide[difficultyLevel], firstNumber - 1);
-    }
 }
 int enterWholeGame(int option)
 {
@@ -37,16 +38,15 @@ int enterWholeGame(int option)
         mode = showMenu(standardGames, "Choose your game:");
         if (mode == -1)
             return -1;
-;
     }
 
+    gameTimer.Restart();
     for (int i = 0; i < gameLength; i++)
     {
         if (option == 0)
             pointsSum += startBasicGame(mode, (i + 1), gameLength);
         else if (option == 1)
             pointsSum += startBasicGame((randomVar.Next() % standardGames.Length), (i + 1), gameLength);
-
     }
 
     return pointsSum;
@@ -84,6 +84,7 @@ int startBasicGame(int selectedGame, int currentRound, int maxRounds)
 {
     Console.Clear();
     Console.WriteLine($"Calculate this equation ({currentRound}/{maxRounds}):");
+    gameTimer.Start();
 
     int correctAnswer = 0;
     //need to fix making numbers
@@ -102,6 +103,7 @@ int startBasicGame(int selectedGame, int currentRound, int maxRounds)
             correctAnswer = firstNumber * secondNumber;
             break;
         case 3:
+            secondNumber = randomVar.Next(minValueOfNumberForDivide[difficultyLevel], maxValueOfNumber[difficultyLevel]);
             dividingHandler(ref firstNumber, ref secondNumber);
             correctAnswer = firstNumber / secondNumber;
             break;
@@ -120,6 +122,7 @@ int startBasicGame(int selectedGame, int currentRound, int maxRounds)
     else
         Console.WriteLine("Wrong answer!");
 
+    gameTimer.Stop();
     Console.WriteLine("Press any key to " + (currentRound == maxRounds ? "exit" : "continue"));
     Console.ReadKey();
 
@@ -200,7 +203,13 @@ void main()
                 Array.Resize(ref gamesHistory, (gamesHistory.Length + 10));
             }
 
-            gamesHistory[indexOfEmpty] = (indexOfEmpty + 1).ToString().PadRight(8) + (difficultiesLevel[difficultyLevel]).PadRight(16) + mainMenuStrings[outcome].PadRight(16) + playerPoints + '/' + gameLength;
+            var tempNumber = (indexOfEmpty + 1).ToString().PadRight(8);
+            var tempDifficulty = (difficultiesLevel[difficultyLevel]).PadRight(16);
+            var tempMode = mainMenuStrings[outcome].PadRight(16);
+            var tempPoints = (playerPoints + "/" + gameLength).ToString().PadRight(16);
+            var tempTime = String.Format("{0:00}:{1:00}:{2:00}", gameTimer.Elapsed.Hours, gameTimer.Elapsed.Minutes, gameTimer.Elapsed.Seconds);
+
+            gamesHistory[indexOfEmpty] = tempNumber + tempDifficulty + tempMode + tempPoints + tempTime;
         }
 
         //difficulty level
@@ -215,7 +224,7 @@ void main()
         if (outcome == 3)
         {
             var lastValid = findLastNonEmpty(gamesHistory);
-            var historyMenuTitle = "Games history\n" + "No.".PadRight(8) + "Difficulty".PadRight(16) + "Mode".PadRight(16) + "Score";
+            var historyMenuTitle = "Games history\n" + "No.".PadRight(8) + "Difficulty".PadRight(16) + "Mode".PadRight(16) + "Score".PadRight(16) + "Time";
 
             showMenu(gamesHistory[0..(lastValid + 1)], historyMenuTitle, -1); //dont show choosing arrow and null elements when loaded
         }
